@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- GSAP (GreenSock Animation Platform) CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <!-- GSAP ScrollTrigger Plugin CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
     <style>
         /* Using a common font for better aesthetics */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0a0a0a;
@@ -23,11 +23,12 @@
         .card-stack-container {
             margin-top: 5rem;
             margin-bottom: 5rem;
+            padding-bottom: 50vh;
         }
 
         .stacking-card {
             position: sticky;
-            top: 5rem; /* Adjust this value based on your header height or desired offset */
+            top: 5rem;
             border-radius: 1.5rem;
             transform-origin: center top;
         }
@@ -36,17 +37,21 @@
         .glow-border {
             box-shadow: 0 0 5px rgba(192, 132, 252, 0.3), 0 0 10px rgba(192, 132, 252, 0.2), 0 0 20px rgba(192, 132, 252, 0.1);
         }
-        
-        .skill-icon {
+
+        .skill-icon,
+        .project-link {
             transition: transform 0.3s ease;
         }
-        .skill-icon:hover {
-            transform: scale(1.1);
+
+        .skill-icon:hover,
+        .project-link:hover {
+            transform: scale(1.05);
         }
-        
+
         .project-link {
-             display: block;
-             transition: background-color 0.3s ease, transform 0.3s ease;
+            display: block;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
         }
 
         .project-link:hover {
@@ -54,116 +59,189 @@
             transform: translateY(-5px);
         }
 
+        /* --- NEW: Spotlight Effect --- */
+        #spotlight {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(192, 132, 252, 0.1) 0%, rgba(192, 132, 252, 0) 65%);
+            pointer-events: none;
+            /* Allows clicks to pass through */
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        /* --- NEW: Project Modal --- */
+        #modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #modal-content {
+            background-color: #111827;
+            /* bg-gray-900 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        #modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #modal-overlay.active #modal-content {
+            transform: scale(1);
+        }
     </style>
 </head>
+
 <body class="bg-black">
 
+    <div id="spotlight"></div>
+
+    <div id="modal-overlay">
+        <div id="modal-content">
+            <div class="flex justify-between items-center border-b border-white/20 pb-3 mb-4">
+                <h2 id="modal-title" class="text-2xl font-bold text-white">Project Title</h2>
+                <button id="modal-close-btn" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <p id="modal-description" class="text-gray-300 mb-4">Project description goes here.</p>
+            <div class="mb-4">
+                <h3 class="font-semibold text-white mb-2">Technologies Used:</h3>
+                <div id="modal-tech-list" class="flex flex-wrap gap-2">
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <a id="modal-live-link" href="#" target="_blank"
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Live
+                    Demo</a>
+                <a id="modal-repo-link" href="#" target="_blank"
+                    class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Source
+                    Code</a>
+            </div>
+        </div>
+    </div>
+
     <div class="relative min-h-screen bg-black overflow-x-hidden">
-        <!-- Bubble Background -->
         <div class="absolute inset-0 overflow-hidden z-0">
-            <!-- Generating 20 bubble divs -->
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 15%; width: 35px; height: 35px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 50%; width: 20px; height: 20px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 70%; width: 50px; height: 50px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 85%; width: 25px; height: 25px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 30%; width: 45px; height: 45px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 5%; width: 15px; height: 15px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 95%; width: 30px; height: 30px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 40%; width: 40px; height: 40px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 25%; width: 22px; height: 22px;"></div>
-            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10" style="left: 60%; width: 38px; height: 38px;"></div>
+            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10"
+                style="left: 15%; width: 35px; height: 35px;"></div>
+            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10"
+                style="left: 50%; width: 20px; height: 20px;"></div>
+            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10"
+                style="left: 70%; width: 50px; height: 50px;"></div>
+            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10"
+                style="left: 85%; width: 25px; height: 25px;"></div>
+            <div class="bubble absolute bottom-0 bg-purple-500 rounded-full opacity-10"
+                style="left: 30%; width: 45px; height: 45px;"></div>
         </div>
 
-        <!-- Main Content -->
         <div class="relative z-10 flex flex-col items-center px-6 py-12">
-            <!-- Profile Section -->
-            <div class="text-center mb-20">
-                <img src="https://placehold.co/150x150/1a1a1a/c084fc?text=YN" alt="Profile Picture" class="w-36 h-36 rounded-full mx-auto border-4 border-purple-400/50 glow-border mb-4"/>
-                <h1 class="text-4xl md:text-5xl font-bold">Your Name</h1>
-                <p class="text-gray-400 text-lg mt-2">Web Developer | Designer | Creator</p>
+            <div class="mb-20 flex flex-col items-center gap-y-4">
+                <img src="./img/pf1.jpg" alt="Profile Picture"
+                    class="w-36 h-36 rounded-full border-4 border-red-400/50 glow-border" />
+                <h1 class="text-4xl md:text-5xl font-bold text-center">Kyaw San Htun</h1>
+                <p class="text-gray-400 text-lg min-h-[28px]"><span id="subtitle"></span></p>
             </div>
-            
-            <!-- Stacking Cards Section -->
+
             <div class="w-full max-w-3xl card-stack-container">
-                <!-- Card 1: About Me -->
                 <div class="stacking-card bg-gray-900/50 backdrop-blur-sm border border-white/10 p-8 mb-8">
                     <h2 class="text-2xl font-bold text-white border-b border-white/20 pb-3 mb-4">About Me</h2>
                     <div id="about-text" class="text-gray-300 leading-relaxed space-y-4">
-                        <p>I am a passionate developer who loves creating smooth, interactive, and visually appealing web experiences.</p>
+                        <p>I am a passionate developer who loves creating smooth, interactive, and visually appealing
+                            web experiences.</p>
                         <p>Always learning, always building.</p>
                     </div>
                 </div>
 
-                <!-- Card 2: Languages & Skills -->
                 <div class="stacking-card bg-gray-900/50 backdrop-blur-sm border border-white/10 p-8 mb-8">
                     <h2 class="text-2xl font-bold text-white border-b border-white/20 pb-3 mb-6">Languages I Know</h2>
                     <div class="grid grid-cols-3 md:grid-cols-6 gap-6 text-center">
-                        <!-- HTML -->
-                        <div class="skill-icon flex flex-col items-center">
-                            <svg class="h-12 w-12 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438zM8.5 8.5h7L15 4l-6 .012h.5zm.75 6H11l.25-2.5H8l-.5 5.5L12 18.25l4.5-1.25.5-5.5h-3.25l-.25 2.5h-3.5z"/></svg>
-                            <span class="mt-2 text-sm">HTML</span>
-                        </div>
-                        <!-- CSS -->
-                         <div class="skill-icon flex flex-col items-center">
-                            <svg class="h-12 w-12 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438zM17.5 4l-6 .012H8.5l.5 4h7.5l-.5 4.5h-7l.5 5.5L12 18.25l4.5-1.25.5-5.5h-7.25l-.25-2.5h7.5z"/></svg>
-                            <span class="mt-2 text-sm">CSS</span>
-                        </div>
-                        <!-- JavaScript -->
-                         <div class="skill-icon flex flex-col items-center">
-                            <svg class="h-12 w-12 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438zM12 21.5l6-1.5.5-6h-3.5l-.25 2.5h-3L11 8.5h6l.5-4h-13l1.5 12h8.5l-.5 2z"/></svg>
-                            <span class="mt-2 text-sm">JavaScript</span>
-                        </div>
-                         <!-- Java -->
-                        <div class="skill-icon flex flex-col items-center">
-                            <svg class="h-12 w-12 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12.5,8.18,9.88,5.56,9.17,6.27,11.79,8.89,12.5,8.18M12.5,12.5,9.17,15.83l.71.71,3.33-3.33L12.5,12.5m5.31-2.22a4.41,4.41,0,0,0-6.23,0L10.87,11,10.16,10.29,11,9.45,10.29,8.74l-.84.84-2-2-.84.85-.71-.71L5,7.74,4.29,7,3.58,7.71,2.87,7,2.16,7.71l-.71-.71L.74,7.71l-.71-.7L0,7l.71.71L0,7.71,0,7,0,7,0,7l0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-12.8-22.18-8.89Z" /></svg>
-                            <span class="mt-2 text-sm">Java</span>
-                        </div>
-                        <!-- C++ -->
-                        <div class="skill-icon flex flex-col items-center">
-                            <svg class="h-12 w-12 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2A10,10,0,0,0,2,12a10,10,0,0,0,10,10,10,10,0,0,0,10-10A10,10,0,0,0,12,2Zm5.21,12.79-2.42,2.42-2.79-2.79-2.79,2.79-2.42-2.42,2.79-2.79-2.79-2.79,2.42-2.42,2.79,2.79,2.79-2.79,2.42,2.42-2.79,2.79Z"/></svg>
-                            <span class="mt-2 text-sm">C++</span>
-                        </div>
-                         <!-- Python -->
-                         <div class="skill-icon flex flex-col items-center">
-                            <svg class="h-12 w-12 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2A10,10,0,0,0,2,12a10,10,0,0,0,10,10,10,10,0,0,0,10-10A10,10,0,0,0,12,2Zm5,13.5a3.5,3.5,0,0,1-3.5,3.5H9V12h3.5A3.5,3.5,0,0,1,16,8.5,3.5,3.5,0,0,1,12.5,5H8v10H5V5h7.5A6.5,6.5,0,0,1,19,11.5,6.5,6.5,0,0,1,12.5,18H9v2.5A3.5,3.5,0,0,1,5.5,17,3.5,3.5,0,0,1,9,13.5H12a.5.5,0,0,0,.5-.5A.5.5,0,0,0,12,12.5H9v-2h3.5a.5.5,0,0,0,.5-.5A.5.5,0,0,0,12.5,9.5H9V7h3.5A3.5,3.5,0,0,1,16,10.5,3.5,3.5,0,0,1,12.5,14H9v-2h3.5a.5.5,0,0,0,0-1H9v-2h3.5a.5.5,0,0,0,0-1H9V7h3.5a3.5,3.5,0,0,1,0,7H9v2h3.5A3.5,3.5,0,0,1,16,15.5,3.5,3.5,0,0,1,12.5,19H9v2.5a.5.5,0,0,0,.5.5H12a.5.5,0,0,0,0-1H9V19h3.5A3.5,3.5,0,0,1,16,22.5,3.5,3.5,0,0,1,12.5,19H9V17h3.5A.5.5,0,0,0,13,16.5.5.5,0,0,0,12.5,16H9v-2h3.5A.5.5,0,0,0,13,13.5.5.5,0,0,0,12.5,13H9V11h3.5A.5.5,0,0,0,13,10.5.5.5,0,0,0,12.5,10H9V8h3.5a.5.5,0,0,0,.5-.5A.5.5,0,0,0,12.5,7H9V5h3.5a3.5,3.5,0,0,1,0,7H9V10h3.5a.5.5,0,0,0,0-1H9v-2h3.5a.5.5,0,0,0,0-1H9v-2h3.5a3.5,3.5,0,0,1,0,7H9v2h3.5a.5.5,0,0,0,0,1H9v2h3.5a.5.5,0,0,0,0,1H9V19h3.5A3.5,3.5,0,0,1,12.5,22a3.5,3.5,0,0,1-3.5-3.5H12a.5.5,0,0,0,0,1H9V19h3.5a.5.5,0,0,0,0-1H9v-2h3.5a.5.5,0,0,0,0-1H9V13h3.5a.5.5,0,0,0,0-1H9V11h3.5a.5.5,0,0,0,0-1H9V8h3.5a.5.5,0,0,0,0-1H9V5h3.5a3.5,3.5,0,0,1,0,7H9v2h3.5a.5.5,0,0,0,0,1H9v2h3.5a.5.5,0,0,0,0,1H9V19h3.5A3.5,3.5,0,0,1,12.5,22a3.5,3.5,0,0,1-3.5-3.5H12a.5.5,0,0,0,0-1H9V19h3.5a.5.5,0,0,0,0-1H9V17h3.5a.5.5,0,0,0,0-1H9v-2h3.5a.5.5,0,0,0,0-1H9V13h3.5a.5.5,0,0,0,0-1H9V11h3.5a.5.5,0,0,0,0-1H9V8h3.5a.5.5,0,0,0,0-1H9V5h3.5a3.5,3.5,0,0,1,0,7H9v2h3.5a.5.5,0,0,0,0,1H9v2h3.5a.5.5,0,0,0,0,1H9V19h3.5A3.5,3.5,0,0,1,12.5,22a3.5,3.5,0,0,1-3.5-3.5H12a.5.5,0,0,0,0-1Z" /></svg>
-                            <span class="mt-2 text-sm">Python</span>
-                        </div>
+                        <div class="skill-icon flex flex-col items-center"><svg class="h-12 w-12 text-orange-500"
+                                fill="currentColor" viewBox="0 0 24 24" aria-label="HTML5 Icon">
+                                <path
+                                    d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438zM8.5 8.5h7L15 4l-6 .012h.5zm.75 6H11l.25-2.5H8l-.5 5.5L12 18.25l4.5-1.25.5-5.5h-3.25l-.25 2.5h-3.5z" />
+                            </svg><span class="mt-2 text-sm">HTML</span></div>
+                        <div class="skill-icon flex flex-col items-center"><svg class="h-12 w-12 text-blue-500"
+                                fill="currentColor" viewBox="0 0 24 24" aria-label="CSS3 Icon">
+                                <path
+                                    d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438zM17.5 4l-6 .012H8.5l.5 4h7.5l-.5 4.5h-7l.5 5.5L12 18.25l4.5-1.25.5-5.5h-7.25l-.25-2.5h7.5z" />
+                            </svg><span class="mt-2 text-sm">CSS</span></div>
+                        <div class="skill-icon flex flex-col items-center"><svg class="h-12 w-12 text-yellow-400"
+                                fill="currentColor" viewBox="0 0 24 24" aria-label="JavaScript Icon">
+                                <path
+                                    d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438zM12 21.5l6-1.5.5-6h-3.5l-.25 2.5h-3L11 8.5h6l.5-4h-13l1.5 12h8.5l-.5 2z" />
+                            </svg><span class="mt-2 text-sm">JavaScript</span></div>
+                        <div class="skill-icon flex flex-col items-center"><svg class="h-12 w-12 text-red-500"
+                                fill="currentColor" viewBox="0 0 24 24" aria-label="Java Icon">
+                                <path
+                                    d="M12.5,8.18,9.88,5.56,9.17,6.27,11.79,8.89,12.5,8.18M12.5,12.5,9.17,15.83l.71.71,3.33-3.33L12.5,12.5m5.31-2.22a4.41,4.41,0,0,0-6.23,0L10.87,11,10.16,10.29,11,9.45,10.29,8.74l-.84.84-2-2-.84.85-.71-.71L5,7.74,4.29,7,3.58,7.71,2.87,7,2.16,7.71l-.71-.71L.74,7.71l-.71-.7L0,7l.71.71L0,7.71,0,7,0,7,0,7l0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-12.8-22.18-8.89Z" />
+                            </svg><span class="mt-2 text-sm">Java</span></div>
+                        <div class="skill-icon flex flex-col items-center"><svg class="h-12 w-12 text-blue-600"
+                                fill="currentColor" viewBox="0 0 24 24" aria-label="C++ Icon">
+                                <path
+                                    d="M12,2A10,10,0,0,0,2,12a10,10,0,0,0,10,10,10,10,0,0,0,10-10A10,10,0,0,0,12,2Zm5.21,12.79-2.42,2.42-2.79-2.79-2.79,2.79-2.42-2.42,2.79-2.79-2.79-2.79,2.42-2.42,2.79,2.79,2.79-2.79,2.42,2.42-2.79,2.79Z" />
+                            </svg><span class="mt-2 text-sm">C++</span></div>
+                        <div class="skill-icon flex flex-col items-center"><svg class="h-12 w-12 text-blue-400"
+                                fill="currentColor" viewBox="0 0 24 24" aria-label="Python Icon">
+                                <path
+                                    d="M12,2A10,10,0,0,0,2,12a10,10,0,0,0,10,10,10,10,0,0,0,10-10A10,10,0,0,0,12,2Zm5,13.5a3.5,3.5,0,0,1-3.5,3.5H9V12h3.5A3.5,3.5,0,0,1,16,8.5,3.5,3.5,0,0,1,12.5,5H8v10H5V5h7.5A6.5,6.5,0,0,1,19,11.5,6.5,6.5,0,0,1,12.5,18H9v2.5A3.5,3.5,0,0,1,5.5,17,3.5,3.5,0,0,1,9,13.5H12a.5.5,0,0,0,.5-.5A.5.5,0,0,0,12,12.5H9v-2h3.5a.5.5,0,0,0,.5-.5A.5.5,0,0,0,12.5,9.5H9V7h3.5A3.5,3.5,0,0,1,16,10.5,3.5,3.5,0,0,1,12.5,14H9v-2h3.5a.5.5,0,0,0,0-1H9v-2h3.5a.5.5,0,0,0,0-1H9V7h3.5a3.5,3.5,0,0,1,0,7H9v2h3.5a3.5,3.5,0,0,1,0,7H9v2.5a.5.5,0,0,0,.5.5H12a.5.5,0,0,0,0-1H9V19h3.5A3.5,3.5,0,0,1,16,22.5,3.5,3.5,0,0,1,12.5,19H9V17h3.5A.5.5,0,0,0,13,16.5.5.5,0,0,0,12.5,16H9v-2h3.5A.5.5,0,0,0,13,13.5.5.5,0,0,0,12.5,13H9V11h3.5A.5.5,0,0,0,13,10.5.5.5,0,0,0,12.5,10H9V8h3.5a.5.5,0,0,0,.5-.5A.5.5,0,0,0,12.5,7H9V5h3.5a3.5,3.5,0,0,1,0,7H9V10h3.5a.5.5,0,0,0,0-1H9v-2h3.5a.5.5,0,0,0,0-1H9v-2h3.5a3.5,3.5,0,0,1,0,7H9v2h3.5a.5.5,0,0,0,0,1H9v2h3.5a.5.5,0,0,0,0,1H9V19h3.5A3.5,3.5,0,0,1,12.5,22a3.5,3.5,0,0,1-3.5-3.5H12a.5.5,0,0,0,0,1H9V19h3.5a.5.5,0,0,0,0-1H9v-2h3.5a.5.5,0,0,0,0-1H9V13h3.5a.5.5,0,0,0,0-1H9V11h3.5a.5.5,0,0,0,0-1H9V8h3.5a.5.5,0,0,0,0-1H9V5h3.5a3.5,3.5,0,0,1,0,7H9v2h3.5a.5.5,0,0,0,0,1H9v2h3.5a.5.5,0,0,0,0,1H9V19h3.5A3.5,3.5,0,0,1,12.5,22a3.5,3.5,0,0,1-3.5-3.5H12a.5.5,0,0,0,0-1Z" />
+                            </svg><span class="mt-2 text-sm">Python</span></div>
                     </div>
                 </div>
 
-                <!-- Card 3: Projects -->
                 <div class="stacking-card bg-gray-900/50 backdrop-blur-sm border border-white/10 p-8 mb-8">
                     <h2 class="text-2xl font-bold text-white border-b border-white/20 pb-3 mb-4">Projects</h2>
                     <div class="space-y-4">
-                        <a href="#" target="_blank" rel="noopener noreferrer" class="project-link p-4 rounded-lg">
-                           <h3 class="font-bold">1. Student Registration System (J2EE)</h3>
-                           <p class="text-sm text-gray-400">A web application for managing student registrations.</p>
-                        </a>
-                         <a href="#" target="_blank" rel="noopener noreferrer" class="project-link p-4 rounded-lg">
-                           <h3 class="font-bold">2. EDM Portfolio Website</h3>
-                           <p class="text-sm text-gray-400">A portfolio website for an electronic dance music producer.</p>
-                        </a>
-                         <a href="#" target="_blank" rel="noopener noreferrer" class="project-link p-4 rounded-lg">
-                           <h3 class="font-bold">3. CineMandalar Web App</h3>
-                           <p class="text-sm text-gray-400">A web app for browsing and discovering movies.</p>
-                        </a>
+                        <div class="project-link p-4 rounded-lg" data-project="regSystem">
+                            <h3 class="font-bold">1. Student Registration System (J2EE)</h3>
+                            <p class="text-sm text-gray-400">A web application for managing student registrations.</p>
+                        </div>
+                        <div class="project-link p-4 rounded-lg" data-project="edm">
+                            <h3 class="font-bold">2. EDM Portfolio Website</h3>
+                            <p class="text-sm text-gray-400">A portfolio website for an electronic dance music producer.
+                            </p>
+                        </div>
+                        <div class="project-link p-4 rounded-lg" data-project="cinemandala">
+                            <h3 class="font-bold">3. CineMandalar Web App</h3>
+                            <p class="text-sm text-gray-400">A web app for browsing and discovering movies.</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Card 4: Resources -->
-                 <div class="stacking-card bg-gray-900/50 backdrop-blur-sm border border-white/10 p-8 mb-8">
+                <div class="stacking-card bg-gray-900/50 backdrop-blur-sm border border-white/10 p-8 mb-8">
                     <h2 class="text-2xl font-bold text-white border-b border-white/20 pb-3 mb-4">Resources I Use</h2>
-                    <div class="text-gray-300 leading-relaxed">FreeCodeCamp, W3Schools, MDN Docs, YouTube tutorials, OpenAI ChatGPT.</div>
+                    <div class="text-gray-300 leading-relaxed">FreeCodeCamp, W3Schools, MDN Docs, YouTube tutorials,
+                        OpenAI ChatGPT.</div>
                 </div>
 
-                <!-- Card 5: Contact Me -->
                 <div class="stacking-card bg-gray-900/50 backdrop-blur-sm border border-white/10 p-8 mb-8">
                     <h2 class="text-2xl font-bold text-white border-b border-white/20 pb-3 mb-4">Contact Me</h2>
                     <div class="text-sm text-gray-300 leading-relaxed">
                         <div class="space-y-2">
-                             <p>Email: <a href="mailto:groupbwebteam@gmail.com" class="underline hover:text-purple-400">groupbwebteam@gmail.com</a></p>
-                             <p>GitHub: <a href="#" class="underline hover:text-purple-400">github.com/yourusername</a></p>
-                             <p>LinkedIn: <a href="#" class="underline hover:text-purple-400">linkedin.com/in/yourusername</a></p>
+                            <p>Email: <a href="mailto:groupbwebteam@gmail.com"
+                                    class="underline hover:text-purple-400">groupbwebteam@gmail.com</a></p>
+                            <p>GitHub: <a href="#" class="underline hover:text-purple-400">github.com/yourusername</a>
+                            </p>
+                            <p>LinkedIn: <a href="#"
+                                    class="underline hover:text-purple-400">linkedin.com/in/yourusername</a></p>
                         </div>
                     </div>
                 </div>
@@ -172,68 +250,154 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             gsap.registerPlugin(ScrollTrigger);
 
-            // Bubble animation
-            const bubbles = document.querySelectorAll(".bubble");
-            bubbles.forEach((bubble) => {
-                gsap.fromTo(bubble, 
-                { y: 100, opacity: 0 }, 
-                {
-                    y: -1000,
-                    opacity: 1,
-                    duration: Math.random() * 15 + 10,
-                    repeat: -1,
-                    delay: Math.random() * 5,
-                    ease: "linear",
-                });
-            });
+            // Check for user's preference for reduced motion
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            // "About me" text animation
-            gsap.from("#about-text p", {
-                scrollTrigger: {
-                    trigger: "#about-text",
-                    start: "top 80%", // starts when the top of the trigger hits 80% of the viewport height
-                    toggleActions: "play none none none"
-                },
-                opacity: 0,
-                y: 20,
-                duration: 0.8,
-                stagger: 0.3
-            });
-
-            // Stacking cards animation
-            const cards = gsap.utils.toArray(".stacking-card");
-            cards.forEach((card, i) => {
-                // Pin each card when it reaches the top of the viewport
-                ScrollTrigger.create({
-                    trigger: card,
-                    start: "top top",
-                    pin: true,
-                    pinSpacing: false, // This is crucial for the stacking effect
-                });
-
-                // Animate the card (i) to disappear as the next card (i+1) scrolls into view
-                if (i < cards.length - 1) { // We don't need to animate the last card out
-                    gsap.to(card, {
-                        scrollTrigger: {
-                            trigger: cards[i + 1], // Trigger animation based on the next card's position
-                            start: "top 85%",      // Start when next card's top is at 85% of viewport height
-                            end: "top 50%",        // End when next card's top is at 50%
-                            scrub: 1,              // Smooth scrubbing (value of 1 for a 1-second lag)
-                        },
-                        // Animate properties for disappearing effect
-                        scale: 0.95,
-                        opacity: 0,
-                        y: "-20%",
-                        ease: "power1.inOut"
+            // --- NEW: Spotlight Effect ---
+            const spotlight = document.getElementById("spotlight");
+            if (!prefersReducedMotion) {
+                window.addEventListener("mousemove", (e) => {
+                    gsap.to(spotlight, {
+                        duration: 0.4,
+                        x: e.clientX,
+                        y: e.clientY,
+                        ease: "power2.out"
                     });
+                });
+            }
+
+            // --- NEW: Typing Animation ---
+            new Typed('#subtitle', {
+                strings: ['Web Developer', 'Designer', 'Creator', 'Always Building.'],
+                typeSpeed: 50,
+                backSpeed: 30,
+                backDelay: 1500,
+                loop: true,
+                smartBackspace: true
+            });
+
+            // Animations that can be disabled if the user prefers reduced motion
+            if (!prefersReducedMotion) {
+                // Bubble animation
+                const bubbles = document.querySelectorAll(".bubble");
+                bubbles.forEach((bubble) => {
+                    gsap.fromTo(bubble,
+                        { y: 100, opacity: 0 },
+                        {
+                            y: -1000,
+                            opacity: 1,
+                            duration: Math.random() * 15 + 10,
+                            repeat: -1,
+                            delay: Math.random() * 5,
+                            ease: "linear",
+                        });
+                });
+
+                // "About me" text animation
+                gsap.from("#about-text p", {
+                    scrollTrigger: {
+                        trigger: "#about-text",
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    },
+                    opacity: 0,
+                    y: 20,
+                    duration: 0.8,
+                    stagger: 0.3
+                });
+
+                // Stacking cards animation
+                const cards = gsap.utils.toArray(".stacking-card");
+                cards.forEach((card, i) => {
+                    if (i < cards.length - 1) {
+                        gsap.to(card, {
+                            scrollTrigger: {
+                                trigger: cards[i + 1],
+                                start: "top 95%",
+                                end: "top 60%",
+                                scrub: true,
+                            },
+                            scale: 0.95,
+                            opacity: 0,
+                            ease: "power1.in"
+                        });
+                    }
+                });
+            }
+
+
+            // --- NEW: Project Modal Logic ---
+            const projectsData = {
+                regSystem: {
+                    title: "Student Registration System",
+                    description: "A comprehensive web application built with J2EE to manage student data, course registrations, and enrollment. It features separate portals for students and administrators.",
+                    tech: ["Java", "J2EE", "Servlets", "JSP", "MySQL"],
+                    liveUrl: "#", // Replace with your live demo link
+                    repoUrl: "#"  // Replace with your GitHub repo link
+                },
+                edm: {
+                    title: "EDM Portfolio Website",
+                    description: "A dynamic and visually-rich portfolio for an electronic music producer, featuring GSAP animations, an audio player, and a responsive layout to showcase music and tour dates.",
+                    tech: ["HTML", "CSS", "JavaScript", "GSAP", "Tailwind CSS"],
+                    liveUrl: "#",
+                    repoUrl: "#"
+                },
+                cinemandala: {
+                    title: "CineMandalar Web App",
+                    description: "A movie discovery web application that uses a public movie API to allow users to search for films, view details, and see popular and upcoming releases.",
+                    tech: ["React", "API", "Axios", "CSS Modules"],
+                    liveUrl: "#",
+                    repoUrl: "#"
+                }
+            };
+
+            const modalOverlay = document.getElementById('modal-overlay');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            const modalTechList = document.getElementById('modal-tech-list');
+            const modalLiveLink = document.getElementById('modal-live-link');
+            const modalRepoLink = document.getElementById('modal-repo-link');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+
+            document.querySelectorAll('.project-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    const projectKey = link.dataset.project;
+                    const project = projectsData[projectKey];
+
+                    modalTitle.textContent = project.title;
+                    modalDescription.textContent = project.description;
+                    modalLiveLink.href = project.liveUrl;
+                    modalRepoLink.href = project.repoUrl;
+
+                    modalTechList.innerHTML = '';
+                    project.tech.forEach(tech => {
+                        const techTag = document.createElement('span');
+                        techTag.className = 'bg-gray-800 text-purple-300 text-sm font-medium px-2.5 py-1 rounded';
+                        techTag.textContent = tech;
+                        modalTechList.appendChild(techTag);
+                    });
+
+                    modalOverlay.classList.add('active');
+                });
+            });
+
+            const closeModal = () => {
+                modalOverlay.classList.remove('active');
+            };
+
+            modalCloseBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (event) => {
+
+                if (event.target === modalOverlay) {
+                    closeModal();
                 }
             });
         });
     </script>
 
 </body>
-</html>
 
+</html>
